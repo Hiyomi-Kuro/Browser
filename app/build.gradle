@@ -14,7 +14,7 @@ android {
         jvmTarget = '11'
     }
     defaultConfig {
-        applicationId "org.woheller69.browser"
+        applicationId "com.kaori.browser"
         minSdk 29
         targetSdk 35
         versionCode 3500

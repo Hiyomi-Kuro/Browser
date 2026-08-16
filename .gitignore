@@ -1,32 +1,46 @@
-# built application files
-# files for the dex VM
-# Java class files
-# generated files
-gen/
+# Gradle caches
+.gradle/
+**/.gradle/
 
-# Local configuration file (sdk path, etc)
+# Build outputs
+build/
+**/build/
+out/
+
+# ACS / AndroidIDE local files
+.acside/
+
+# Local Android SDK configuration
 local.properties
 
-# Eclipse project files
-# Android Studio
-.idea/libraries/
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/.name
-.idea/compiler.xml
-.idea/copyright/profiles_settings.xml
-.idea/encodings.xml
-.idea/misc.xml
-.idea/modules.xml
-.idea/scopes/scope_settings.xml
-.idea/vcs.xml
+# Android Studio / IntelliJ
 .idea/
 *.iml
-.gradle
-gradle
-*.iml
+
+# Native build caches
+.cxx/
+.externalNativeBuild/
+
+# Generated packages
 *.apk
-app/debug/*
-app/release/*
-# Built application files
-/build/
+*.aab
+*.ap_
+*.dex
+*.class
+
+# Generated files
+gen/
+bin/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Fastlane generated files
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
