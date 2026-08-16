@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference android:summary="@string/data_summary" />
+
+    <ListPreference
+        android:key="backrestore"
+        android:defaultValue="1"
+        android:entries="@array/setting_entries_backup"
+        android:entryValues="@array/setting_values_backup"/>
+
+</PreferenceScreen>

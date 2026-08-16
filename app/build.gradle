@@ -1,0 +1,51 @@
+apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
+
+android {
+    compileSdk 35
+    namespace 'de.baumann.browser'
+    android.buildFeatures.buildConfig true
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+    defaultConfig {
+        applicationId "org.woheller69.browser"
+        minSdk 29
+        targetSdk 35
+        versionCode 3500
+        versionName "3.5"
+        multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        disable 'MissingTranslation'
+    }
+    return void
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.preference:preference:1.2.1'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
+    implementation 'androidx.webkit:webkit:1.11.0'
+    implementation 'net.lingala.zip4j:zip4j:2.9.1'
+    implementation 'com.github.woheller69:preferences:1.2'
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'com.github.woheller69:FreeDroidWarn:+'
+}

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    
+    <EditTextPreference
+        android:defaultValue="https://github.com/woheller69/browser#Instructions"
+        android:key="favoriteURL"
+        app:useSimpleSummaryProvider="true"
+        android:title="@string/setting_title_fav" />
+
+    <ListPreference
+        android:key="sp_search_engine"
+        android:defaultValue="4"
+        android:title="@string/setting_title_search_engine"
+        android:entries="@array/setting_entries_search_engine"
+        android:entryValues="@array/setting_values_search_engine"/>
+
+    <org.woheller69.preferences.EditTextSwitchPreference
+        android:selectable="true"
+        app:useSimpleSummaryProvider="true"
+        android:key="sp_search_engine_custom"
+        app:SwitchKey="searchEngineSwitch"
+        android:title="@string/setting_title_searchEngine" />
+
+    <org.woheller69.preferences.EditTextSwitchPreference
+        android:selectable="true"
+        app:useSimpleSummaryProvider="true"
+        android:key="sp_userAgent"
+        app:SwitchKey="userAgentSwitch"
+        android:title="@string/setting_title_userAgent" />
+
+    <SwitchPreference
+        android:key="sp_autofill"
+        android:defaultValue="false"
+        android:title="@string/setting_title_autofill" />
+
+    <SwitchPreference
+        android:key="sp_drm"
+        android:defaultValue="false"
+        android:title="@string/hint_DRM_Media" />
+
+    <SwitchPreference
+        android:key="sp_deny_cookie_banners"
+        android:title="@string/setting_title_deny_cookie_banners"
+        android:summary="@string/summary_deny_cookie_banners"
+        android:defaultValue="false" />
+
+    <PreferenceCategory >
+
+        <SwitchPreference
+            android:key="sp_ad_block"
+            android:title="@string/setting_title_adblock"
+            android:defaultValue="true" />
+
+        <ListPreference
+            android:key="ab_hosts"
+            android:defaultValue="https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
+            android:title="StevenBlack"
+            android:entries="@array/setting_entries_adBlock"
+            android:entryValues="@array/setting_values_adBlock"/>
+
+        <org.woheller69.preferences.EditTextSwitchPreference
+            android:selectable="true"
+            app:useSimpleSummaryProvider="true"
+            android:key="sp_custom_host_list"
+            app:SwitchKey="customHostListSwitch"
+            android:title="@string/setting_title_custom_host_list" />
+
+        <org.woheller69.preferences.EditTextSwitchPreference
+            android:selectable="true"
+            app:useSimpleSummaryProvider="true"
+            android:key="sp_invidious_domain"
+            android:defaultValue="yewtu.be"
+            app:SwitchKey="sp_invidious_redirect"
+            android:title="Youtube \u279f Invidious" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory >
+
+        <SwitchPreference
+            android:key="sp_cookies"
+            android:title="@string/setting_title_cookie"
+            android:defaultValue="true" />
+
+        <Preference
+            android:key="start_cookie"
+            android:title="@string/setting_title_whitelistCookie"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory >
+
+        <SwitchPreference
+            android:key="sp_javascript"
+            android:title="@string/setting_title_javascript"
+            android:defaultValue="true" />
+
+        <Preference
+            android:key="start_java"
+            android:title="@string/setting_title_whitelistJS"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory >
+
+        <SwitchPreference
+            android:key="sp_dom"
+            android:title="@string/setting_title_dom"
+            android:defaultValue="true" />
+
+        <Preference
+            android:key="start_dom"
+            android:title="@string/setting_title_dom_whitelist"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

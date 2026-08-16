@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/setting_theme">
+
+    <ListPreference
+        android:key="sp_theme"
+        android:defaultValue="1"
+        android:entries="@array/setting_entries_theme"
+        android:entryValues="@array/setting_values_theme"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/setting_title_behavior">
+
+        <SwitchPreference
+            android:key="hideToolbar"
+            android:defaultValue="true"
+            android:title="@string/setting_title_hideToolbar"/>
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="sp_close_browser_confirm"
+            android:title="@string/setting_title_confirm_exit"/>
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="sp_close_tab_confirm"
+            android:title="@string/setting_title_confirm_tab_close"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/setting_title_toolbar">
+
+        <ListPreference
+            android:title="@string/setting_gesture_up"
+            android:key="setting_gesture_tb_up"
+            android:defaultValue="13"
+            android:entries="@array/setting_entries_gestures"
+            android:entryValues="@array/setting_values_gestures" />
+
+        <ListPreference
+            android:title="@string/setting_gesture_down"
+            android:key="setting_gesture_tb_down"
+            android:defaultValue="01"
+            android:entries="@array/setting_entries_gestures"
+            android:entryValues="@array/setting_values_gestures" />
+
+        <ListPreference
+            android:title="@string/setting_gesture_left"
+            android:key="setting_gesture_tb_left"
+            android:defaultValue="02"
+            android:entries="@array/setting_entries_gestures"
+            android:entryValues="@array/setting_values_gestures" />
+
+        <ListPreference
+            android:title="@string/setting_gesture_right"
+            android:key="setting_gesture_tb_right"
+            android:defaultValue="03"
+            android:entries="@array/setting_entries_gestures"
+            android:entryValues="@array/setting_values_gestures" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <org.woheller69.preferences.EditTextSwitchPreference
+        android:key="icon_01"
+        app:useSimpleSummaryProvider="true"
+        android:defaultValue="@string/color_red"
+        app:SwitchKey="filter_01"
+        app:SwitchKeyDefaultValue="true"
+        android:icon="@drawable/bookmark_red_big" />
+    <org.woheller69.preferences.EditTextSwitchPreference
+        android:key="icon_02"
+        app:useSimpleSummaryProvider="true"
+        android:defaultValue="@string/color_pink"
+        app:SwitchKey="filter_02"
+        app:SwitchKeyDefaultValue="true"
+        android:icon="@drawable/bookmark_pink_big" />
+    <org.woheller69.preferences.EditTextSwitchPreference
+        android:key="icon_03"
+        app:useSimpleSummaryProvider="true"
+        android:defaultValue="@string/color_purple"
+        app:SwitchKey="filter_03"
+        app:SwitchKeyDefaultValue="true"
+        android:icon="@drawable/bookmark_purple_big" />
+    <org.woheller69.preferences.EditTextSwitchPreference
+        android:key="icon_04"
+        app:useSimpleSummaryProvider="true"
+        android:defaultValue="@string/color_blue"
+        app:SwitchKey="filter_04"
+        app:SwitchKeyDefaultValue="true"
+        android:icon="@drawable/bookmark_blue_big" />
+    <org.woheller69.preferences.EditTextSwitchPreference
+        android:key="icon_05"
+        app:useSimpleSummaryProvider="true"
+        android:defaultValue="@string/color_teal"
+        app:SwitchKey="filter_05"
+        app:SwitchKeyDefaultValue="true"
+        android:icon="@drawable/bookmark_teal_big" />
+    <org.woheller69.preferences.EditTextSwitchPreference
+        android:key="icon_06"
+        app:useSimpleSummaryProvider="true"
+        android:defaultValue="@string/color_green"
+        app:SwitchKey="filter_06"
+        app:SwitchKeyDefaultValue="true"
+        android:icon="@drawable/bookmark_green_big" />
+    <org.woheller69.preferences.EditTextSwitchPreference
+        android:key="icon_07"
+        app:useSimpleSummaryProvider="true"
+        android:defaultValue="@string/color_lime"
+        app:SwitchKey="filter_07"
+        app:SwitchKeyDefaultValue="true"
+        android:icon="@drawable/bookmark_lime_big" />
+    <org.woheller69.preferences.EditTextSwitchPreference
+        android:key="icon_08"
+        app:useSimpleSummaryProvider="true"
+        android:defaultValue="@string/color_yellow"
+        app:SwitchKey="filter_08"
+        app:SwitchKeyDefaultValue="true"
+        android:icon="@drawable/bookmark_yellow_big" />
+    <org.woheller69.preferences.EditTextSwitchPreference
+        android:key="icon_09"
+        app:useSimpleSummaryProvider="true"
+        android:defaultValue="@string/color_orange"
+        app:SwitchKey="filter_09"
+        app:SwitchKeyDefaultValue="true"
+        android:icon="@drawable/bookmark_orange_big" />
+    <org.woheller69.preferences.EditTextSwitchPreference
+        android:key="icon_10"
+        app:useSimpleSummaryProvider="true"
+        android:defaultValue="@string/color_brown"
+        app:SwitchKey="filter_10"
+        app:SwitchKeyDefaultValue="true"
+        android:icon="@drawable/bookmark_brown_big" />
+    <org.woheller69.preferences.EditTextSwitchPreference
+        android:key="icon_11"
+        app:useSimpleSummaryProvider="true"
+        android:defaultValue="@string/color_grey"
+        app:SwitchKey="filter_11"
+        app:SwitchKeyDefaultValue="true"
+        android:icon="@drawable/bookmark_grey_big" />
+
+</PreferenceScreen>

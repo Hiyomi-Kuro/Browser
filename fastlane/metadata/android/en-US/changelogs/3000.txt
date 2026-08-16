@@ -1,0 +1,4 @@
+Add Brave as search engine
+Disable WebViewMediaIntegrityApi
+Allow third-party cookies if fingerprint protection is off
+Bugfixes

@@ -1,0 +1,28 @@
+„FREE Browser“ ist ein Webbrowser für optimale Privatsphäre
+
+• Vollständig Open Source
+• keine Tracker, keine Werbung
+• Keine unnötigen Berechtigungen
+
+Diese App basiert auf dem integrierten Android WebView. Stellen Sie sicher, dass er auf dem neuesten Stand ist.
+
+-------------------------------------------------
+<b>FUNKTIONEN</b>
+-------------------------------------------------
+
+• AdBlocker basierend auf StevenBlack Hosts
+• Maßnahmen gegen Browser-Fingerprinting
+• Cookie Banner Blocker: Automatisch "Ablehnen", basierend auf den Cookie Banner Regeln für Firefox
+• Erweiterte Einstellungen für Javascript, Cookies und DOM-Speicher (domain-/lesezeichenbasiert)
+• Cookies von Drittanbietern werden grundsätzlich nicht unterstützt.
+• Unterstützung für Skripte im Greasemonkey-Stil  (unterstützt: @match, @name, @run-at)
+• Optimiert für die Einhandbedienung (Symbolleiste unten)
+• TAB-Steuerung (wechseln, öffnen, schließen, unbegrenzte Tabs)
+• Schnelles Umschalten für die wichtigsten Einstellungen
+• Vergrößern / Verkleinern
+• Aktuelle Webseite durchsuchen
+• Websuche (aus markiertem Text über Kontextmenü)
+• Als PDF speichern
+• Links in anderen Apps öffnen (z. B. YouTube)
+• Sicherung
+• etc

@@ -1,0 +1,1 @@
+Datenschutz-Browser mit Skriptunterstützung und Cookie-Banner-Blocker
