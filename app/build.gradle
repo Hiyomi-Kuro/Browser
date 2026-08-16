@@ -3,7 +3,7 @@ apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     compileSdk 35
-    namespace 'de.baumann.browser'
+    namespace 'com.kaori.browser'
     android.buildFeatures.buildConfig true
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11

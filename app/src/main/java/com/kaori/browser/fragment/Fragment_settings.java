@@ -1,0 +1,126 @@
+package com.kaori.browser.fragment;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+
+import androidx.preference.EditTextPreference;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceGroup;
+import androidx.webkit.ProxyController;
+import androidx.webkit.WebViewFeature;
+
+import com.kaori.browser.activity.Manage_UserScripts;
+import com.kaori.browser.activity.Settings_Delete;
+import com.kaori.browser.activity.Settings_Backup;
+import com.kaori.browser.activity.Settings_Filter;
+import com.kaori.browser.activity.Settings_StartActivity;
+import com.kaori.browser.activity.Settings_UI;
+import com.kaori.browser.R;
+
+public class Fragment_settings extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener{
+
+    @Override
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+
+        setPreferencesFromResource(R.xml.preference_setting, rootKey);
+
+        initSummary(getPreferenceScreen());
+
+        Preference settings_filter = findPreference("settings_filter");
+        assert settings_filter != null;
+        settings_filter.setOnPreferenceClickListener(preference -> {
+           Intent intent = new Intent(getActivity(), Settings_Filter.class);
+           requireActivity().startActivity(intent);
+           return false;
+        });
+
+        Preference settings_data = findPreference("settings_data");
+        assert settings_data != null;
+        settings_data.setOnPreferenceClickListener(preference -> {
+            Intent intent = new Intent(getActivity(), Settings_Backup.class);
+            requireActivity().startActivity(intent);
+            return false;
+        });
+
+        Preference settings_ui = findPreference("settings_ui");
+        assert settings_ui != null;
+        settings_ui.setOnPreferenceClickListener(preference -> {
+            Intent intent = new Intent(getActivity(), Settings_UI.class);
+            requireActivity().startActivity(intent);
+            return false;
+        });
+
+        Preference settings_start = findPreference("settings_start");
+        assert settings_start != null;
+        settings_start.setOnPreferenceClickListener(preference -> {
+            Intent intent = new Intent(getActivity(), Settings_StartActivity.class);
+            requireActivity().startActivity(intent);
+            return false;
+        });
+
+        Preference settings_clear = findPreference("settings_clear");
+        assert settings_clear != null;
+        settings_clear.setOnPreferenceClickListener(preference -> {
+            Intent intent = new Intent(getActivity(), Settings_Delete.class);
+            requireActivity().startActivity(intent);
+            return false;
+        });
+
+        Preference scripts = findPreference("scripts");
+        assert scripts != null;
+        scripts.setOnPreferenceClickListener(preference -> {
+            Intent intent = new Intent(getActivity(), Manage_UserScripts.class);
+            requireActivity().startActivity(intent);
+            return false;
+        });
+    }
+
+    private void initSummary(Preference p) {
+        if (p instanceof PreferenceGroup) {
+            PreferenceGroup pGrp = (PreferenceGroup) p;
+            for (int i = 0; i < pGrp.getPreferenceCount(); i++) {
+                initSummary(pGrp.getPreference(i));
+            }
+        } else {
+            updatePrefSummary(p);
+        }
+    }
+
+    private void updatePrefSummary(Preference p) {
+        if (p instanceof ListPreference) {
+            ListPreference listPref = (ListPreference) p;
+            p.setSummary(listPref.getEntry());
+        }
+        if (p instanceof EditTextPreference) {
+            EditTextPreference editTextPref = (EditTextPreference) p;
+                if (p.getSummaryProvider()==null)   p.setSummary(editTextPref.getText());
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(final SharedPreferences sp, String key) {
+        if (key.equals("userProxy")){
+            if (!sp.getBoolean("userProxy", false)){
+                if (WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)){
+                    ProxyController.getInstance().clearProxyOverride(command -> {}, () -> {});
+                }
+            }
+        }
+        updatePrefSummary(findPreference(key));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+    }
+}
