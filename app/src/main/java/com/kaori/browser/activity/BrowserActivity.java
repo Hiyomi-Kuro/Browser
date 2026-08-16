@@ -8,6 +8,8 @@ import android.app.DownloadManager;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -18,6 +20,8 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 
 import androidx.annotation.OptIn;
 import androidx.appcompat.app.AlertDialog;
@@ -88,6 +92,11 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+
+import com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter;
+import org.json.JSONTokener;
 
 import com.kaori.browser.BuildConfig;
 import com.kaori.browser.GithubStar;
@@ -1739,12 +1748,14 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         GridItem item_23 = new GridItem(0, getString(R.string.menu_save_bookmark),  0);
         GridItem item_25 = new GridItem(0, getString(R.string.menu_sc),  0);
         GridItem item_26 = new GridItem(0, getString(R.string.menu_save_as),  0);
+        GridItem item_27 = new GridItem(0, getString(R.string.menu_save_markdown),  0);
 
         final List<GridItem> gridList_save = new LinkedList<>();
         gridList_save.add(gridList_save.size(), item_21);
         gridList_save.add(gridList_save.size(), item_23);
         gridList_save.add(gridList_save.size(), item_25);
         gridList_save.add(gridList_save.size(), item_26);
+        gridList_save.add(gridList_save.size(), item_27);
 
         GridAdapter gridAdapter_save = new GridAdapter(context, gridList_save);
         menu_grid_save.setAdapter(gridAdapter_save);
@@ -1764,6 +1775,8 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
                 HelperUnit.createShortcut(context, ninjaWebView.getTitle(), ninjaWebView.getUrl());
             } else if (position == 3) {
                 HelperUnit.saveAs(dialog_overflow, activity, url, null);
+            } else if (position == 4) {
+                com.kaori.browser.unit.MarkdownExporter.export(this, ninjaWebView);
             }
         });
 

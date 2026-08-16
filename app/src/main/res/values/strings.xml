@@ -48,6 +48,7 @@
     <string name="menu_save_home">Save at Home</string>
     <string name="menu_save_bookmark">Save as bookmark</string>
     <string name="menu_save_as">Save as …</string>
+    <string name="menu_save_markdown">Save as Markdown</string>
     <string name="menu_save_pdf">Save as PDF</string>
     <string name="menu_shareClipboard">Copy to clipboard</string>
 

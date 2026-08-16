@@ -1,129 +1,223 @@
+# Browser
 
-# FREE Browser
+Browser is a lightweight Android WebView browser focused on privacy, simplicity, and local control.
 
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/01.png" width="150"/> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/02.png" width="150"/>  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/03.png" width="150"/> 
-
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/04.png" width="150"/> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/05.png" width="150"/> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/06.png" width="150"/>
-
-
-FREE Browser is a web browser for optimal privacy
-
-- fully open source
-- no trackers
-- no unnecessary permissions
-
-
+- Fully open source
+- No trackers
+- No unnecessary permissions
+- Lightweight single-app architecture
+- Uses Android System WebView
+- Default start page: Bing
+- Default search engine: Bing
 
 ## FEATURES
 
-- AdBlocker using [StevenBlack host list](https://github.com/StevenBlack/hosts)
-- Measures against browser fingerprinting
-- Cookie Banner Blocker: Auto "Deny", based on [Cookie Banner Rules for Firefox](https://github.com/mozilla/cookie-banner-rules-list)
-- Advanced settings for javascript, cookies and DOM-storage (domain/bookmark based)
-- Support for Greasemonkey style scripts
-- Optimized for one hand handling (toolbar at bottom)
-- TAB control (switch, open, close, unlimited tabs)
-- Fast toggle for most important settings
-- Search current website
-- Web search (from marked text via context menu)
-- Save as PDF
-- Open links in other apps (for example YouTube)
-- Backup
-- etc
+- Ad blocker using StevenBlack host lists
+- Anti-browser-fingerprinting measures
+- Cookie Banner Blocker with automatic opt-out support
+- Per-domain and bookmark settings for JavaScript, cookies, and DOM storage
+- Greasemonkey-style user scripts
+- Bottom toolbar optimized for one-handed use
+- Unlimited tabs
+- Fast toggle for frequently used browser settings
+- Search within the current website
+- Web search from selected text
+- Save webpages as PDF
+- Save webpages as Markdown
+- Open supported links in external apps
+- Backup and restore browser data
+- Custom start page and search engine
+- Desktop mode
+- Night mode
+- Location, camera, and microphone controls
 
+## SAVE WEBPAGE AS MARKDOWN
 
+Browser can convert the currently loaded webpage from HTML to Markdown.
 
+The feature uses the rendered page DOM and converts HTML content to Markdown using `flexmark-html2md-converter`.
 
+To use it:
+
+1. Open a webpage.
+2. Open the Browser overflow menu.
+3. Select the Save section.
+4. Tap `Save as Markdown`.
+
+Browser attempts to locate the main article content first. Common article containers such as `article`, `main`, full-text sections, and other main-content elements are preferred. If no suitable article container is found, Browser falls back to the page body.
+
+Before conversion, common non-content elements such as navigation bars, scripts, styles, advertisements, sidebars, forms, buttons, and other interface elements are removed where possible.
+
+Relative links and image URLs are converted to absolute URLs before Markdown conversion.
+
+Markdown files are saved to:
+
+`/storage/emulated/0/Download/Browser/`
+
+The `Browser` folder is created automatically by Android when the first Markdown file is saved.
+
+The filename is generated from the webpage title.
+
+### Markor integration
+
+If Markor is installed, Browser automatically opens the generated `.md` file in Markor using edit mode after saving.
+
+The Markdown file remains stored in:
+
+`Download/Browser/`
+
+and can also be opened later with Markor or another Markdown editor.
+
+Markor is optional. Markdown export works even when Markor is not installed.
+
+### PubMed and scientific articles
+
+The Markdown exporter can be used with PubMed, PubMed Central, and other article websites.
+
+When a webpage contains accessible full-text article content, Browser attempts to extract the main article body and convert elements such as:
+
+- Headings
+- Paragraphs
+- Links
+- Lists
+- Tables
+- Block quotes
+- Inline code
+- Code blocks
+- Images
+
+into Markdown.
+
+The exported file also contains the original webpage URL as source metadata.
+
+Browser can only export content that is actually present and accessible in the currently loaded webpage. If a PubMed page only contains an abstract, or the full article is behind a login or paywall and is not loaded in the page, Browser cannot export unavailable full text.
+
+Because websites use different HTML structures, Markdown conversion is best-effort and some pages may require manual cleanup after export.
+
+## MAIN NAVIGATION
+
+For each tab it is possible to enable or disable:
+
+- AdBlock
+- Anti-Browser-Fingerprinting measures
+- Desktop Mode
+- DOM Storage
+- JavaScript
+
+These settings, except Desktop Mode, are inherited from global settings when a new tab is created and are applied when a new website is opened.
+
+Browser supports bookmark-specific settings for JavaScript, DOM Storage, and Desktop Mode. These settings are stored with the bookmark and applied when that bookmark is opened.
+
+You can also define domains where cookies, DOM Storage, and JavaScript are always allowed from Browser Settings.
+
+Third-party cookies are only supported when cookies are enabled and fingerprint protection is disabled.
+
+Global website settings include:
+
+- Allow location access
+- Allow camera access
+- Allow microphone access
+- Download images depending on network conditions
+- Night mode with algorithmic darkening
+
+## COOKIE BANNER BLOCKER
+
+Browser includes support for Mozilla Firefox Cookie Banner Rules.
+
+The feature can automatically apply opt-out cookies and attempt to reject supported cookie banners.
+
+Cookie Banner Blocker requires JavaScript.
+
+Some banners, especially those running inside unsupported child contexts or using unusual website implementations, may not be handled automatically.
+
+## GREASEMONKEY-STYLE USER SCRIPTS
+
+Browser supports simple Greasemonkey-style user scripts.
+
+Currently supported metadata:
+
+- `@match`
+- `@run-at`
+- `@name`
+
+`@match` is required.
+
+Example:
+
+`@match https://*/`
+
+If the expression following `@match` starts and ends with `/`, it is treated as a regular expression.
+
+If `@run-at` is set to `document-start`, the script runs from WebView `onPageStarted()`.
+
+Otherwise the script runs after the page finishes loading.
+
+The following metadata is not currently supported:
+
+- `@include`
+- `@exclude`
+- `@grant`
+- `@require`
+
+## BROWSER SETTINGS
+
+Browser Settings can be used to configure:
+
+- Start page
+- Search engine
+- AdBlock host list
+- Additional blocked domains
+- Cookie exceptions
+- JavaScript exceptions
+- DOM Storage exceptions
+- Website permissions
+- User interface options
+
+The default start page is:
+
+`https://www.bing.com`
+
+The default search engine is Bing.
+
+## BACKUP AND RESTORE
+
+Browser can back up and restore:
+
+- Databases
+- Bookmarks
+- Preferences
+
+Backup data is stored in:
+
+`Documents/browser_backup`
+
+## BUILD
+
+The Android application is contained in a single `app` module.
+
+Current application ID:
+
+`com.kaori.browser`
+
+Minimum Android version:
+
+`minSdk 29`
+
+The project can be built with Gradle.
 
 ## LICENSE
 
 This app is licensed under the GPLv3.
 
-The app uses code from:
-- FOSS-Browser, https://codeberg.org/Gaukler_Faun/FOSS_Browser, published under GPLv3 (at time of fork)
-- Ninja, https://github.com/mthli/Ninja, published under Apache-2.0 license
-- Zip4j, https://github.com/srikanth-lingala/zip4j, published under Apache-2.0 license
-- StevenBlack hosts, https://github.com/StevenBlack/hosts, published under MIT license
-- DuckDuckGo Android browser: https://github.com/duckduckgo/Android, published under Apache-2.0 license
+The app uses code or libraries from:
 
-The app supports (not included, will be downloaded if switched on):
-- Mozilla Firefox Cookie Banner Rules, https://github.com/mozilla/cookie-banner-rules-list, published under MPL-2.0 license
+- FOSS-Browser, https://codeberg.org/Gaukler_Faun/FOSS_Browser
+- Ninja, https://github.com/mthli/Ninja
+- Zip4j, https://github.com/srikanth-lingala/zip4j
+- StevenBlack hosts, https://github.com/StevenBlack/hosts
+- DuckDuckGo Android browser, https://github.com/duckduckgo/Android
+- Flexmark Java / HTML to Markdown converter, https://github.com/vsch/flexmark-java
 
-## INSTRUCTIONS
+The app can optionally download and use Mozilla Firefox Cookie Banner Rules:
 
-
-### Main Navigation
-<img src="Instructions.png" height="460"/> <img src="Instructions2.png" height="460"/>
-
-The main navigation features are depicted in the image above.
-
-For each tab it is possible to enable/disable:
-- AdBlock
-- Anti-Browser-Fingerprinting measures
-- Desktop Mode
-- DOM-Storage
-- JavaScript
-
-These settings (except desktop mode) are inherited from global settings when a new tab is created.
-They will always be applied when a new web site is opened.
-
-FREE Browser allows bookmark specific settings for JavaScript, DOM-Storage, and Desktop mode. These are set from the current
-tab when storing the bookmark and can be changed when editing it.
-If a bookmark is opened these settings will be applied, no matter which other settings are valid for the tab.
-If this is the case the bookmark symbol in "Exceptions" will be highlighted. When browsing within the domain of the
-bookmark these settings will remain. 
-
-In addition you can define domains where Cookies, DOM-Storage, and JavaScript are always allowed (see Settings -> Browser Settings).
-Cookies will override the global cookies setting. DOM-Storage and JavaScript will override the tab specific settings.
-If one of these exceptions is active the respective icon will also be highlighted in "Exceptions". 
-A click on the icon will add/remove an exception. Third party cookies are only supported if cookies are enabled AND fingerprint protection is switched off.
-
-In additions there are settings which are only available as global settings and apply to all websites:
-- Allow location access: enables websites to access your device's location
-- Allow camera access: allows websites to use your device's camera
-- Allow microphone access: allows websites to use your device's microphone
-- Download images: saves data by downloading images only when not connected to a metered network, usually a WiFi connection; otherwise, images will always be loaded when connected to a non-metered network
-- Night mode: enables algorithmic darkening of web pages when the app is in dark mode and the website doesn't have a dark version
-
-### Cookie Banner Blocker
-
-FREE Browser comes equipped with integrated support for Mozilla's [Cookie Banner Rules](https://github.com/mozilla/cookie-banner-rules-list). 
-This feature allows the browser to automatically inject cookies that opt out of any unnecessary cookies, while also attempting to click opt out if a banner is present. 
-However, please note that this functionality is only available for banners that are not located within child windows (```runContext: 'child'```, used by very few rules only). 
-If you notice any missing rules, please open an issue in Mozilla's repository after trying with Firefox first.
-Important: Cookie Banner Blocker requires JavaScript! 
-
-### Greasemonkey style scripts
-
-FREE Browser supports simple user scripts in Greasemonkey style.
-(e.g. [Github Old Feed](https://github.com/wangrongding/github-old-feed/) )
-The following tags:
-- @match (required!)
-- @run-at
-- @name
-
-@run-at:  
-If defined as "document-start" scripts run in onPageStarted() of Android WebView, 
-otherwise scripts run in onPageFinished.
-
-@match: At least one tag required. E.g. ```@match https://*/``` to match all https urls  
-If the expression after @match starts and ends with "/" it is treated as a regex.
-
-Other tags are **NOT** supported at the moment, e.g.
-- @include
-- @exclude
-- @grant
-- @required
-
-### Browser Settings
-
-In this section you can define your favourite start page, search engine, etc.
-You can select your favourite StevenBlack AdBlock list. You can also enter list of additional domains (one domain per line) which should be blocked.
-And this is the place to manage exceptions for cookies, javascript, and DOM storage.
-
-
-### Backup / restore
-
-You can save / restore app data (=databases), bookmarks, and preferences.
-Data will be stored in Documents/browser_backup.
-
+https://github.com/mozilla/cookie-banner-rules-list
