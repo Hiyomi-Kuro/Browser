@@ -121,7 +121,7 @@ public class BrowserUnit {
         if (sp.getBoolean("searchEngineSwitch",false)){
             return customSearchEngine + query;
         } else {
-            final int i = Integer.parseInt(Objects.requireNonNull(sp.getString("sp_search_engine", "4")));
+            final int i = Integer.parseInt(Objects.requireNonNull(sp.getString("sp_search_engine", "3")));
             switch (i) {
                 case 1:
                     return SEARCH_ENGINE_STARTPAGE_DE + query;

@@ -126,7 +126,6 @@ import static android.webkit.WebView.HitTestResult.SRC_ANCHOR_TYPE;
 import static android.webkit.WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE;
 import static com.kaori.browser.unit.BrowserUnit.URL_ABOUT_BLANK;
 
-import org.woheller69.freeDroidWarn.FreeDroidWarn;
 
 public class BrowserActivity extends AppCompatActivity implements BrowserController {
 
@@ -326,7 +325,6 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
                 addAlbum(getString(R.string.app_name), openTabs.get(counter), BrowserContainer.size() < 1, openTabSettings.get(counter));
             }
         }
-        FreeDroidWarn.showWarningOnUpgrade(this, BuildConfig.VERSION_CODE);
         if (GithubStar.shouldShowStarDialog(this)) GithubStar.starDialog(this,"https://github.com/woheller69/browser");
     }
 
