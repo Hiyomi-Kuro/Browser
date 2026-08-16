@@ -3,7 +3,7 @@
 <resources>
 
     <!-- App -->
-    <string name="app_name" translatable="false">FREE Browser</string>
+    <string name="app_name" translatable="false">Browser</string>
     <string name="app_ok">確認</string>
     <string name="app_cancel">取消</string>
     <string name="app_done">完成</string>

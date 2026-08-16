@@ -325,7 +325,7 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
                 addAlbum(getString(R.string.app_name), openTabs.get(counter), BrowserContainer.size() < 1, openTabSettings.get(counter));
             }
         }
-        if (GithubStar.shouldShowStarDialog(this)) GithubStar.starDialog(this,"https://github.com/woheller69/browser");
+        if (GithubStar.shouldShowStarDialog(this)) GithubStar.starDialog(this,"https://github.com/Hiyomi-Kuro/Browser");
     }
 
     @Override
@@ -1160,7 +1160,7 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         ib_info.setOnClickListener(view -> {
             if (ninjaWebView != null) {
                 dialog.cancel();
-                addAlbum("Instructions","https://github.com/woheller69/browser#Instructions",true, null);
+                addAlbum("Instructions","https://github.com/Hiyomi-Kuro/Browser#Instructions",true, null);
             }
         });
     }
@@ -1676,7 +1676,7 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         ImageButton overflow_info = dialogView.findViewById(R.id.overflow_info);
         overflow_info.setOnClickListener(v -> {
             dialog_overflow.cancel();
-            addAlbum("Instructions","https://github.com/woheller69/browser#Instructions",true, null);
+            addAlbum("Instructions","https://github.com/Hiyomi-Kuro/Browser#Instructions",true, null);
         });
 
         ImageButton overflow_print = dialogView.findViewById(R.id.overflow_print);

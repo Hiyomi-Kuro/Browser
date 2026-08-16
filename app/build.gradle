@@ -17,8 +17,8 @@ android {
         applicationId "com.kaori.browser"
         minSdk 29
         targetSdk 35
-        versionCode 3500
-        versionName "3.5"
+        versionCode 1000
+        versionName "1.0"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
     }
