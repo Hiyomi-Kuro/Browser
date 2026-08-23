@@ -48,6 +48,7 @@
     <string name="menu_save_home">儲存到桌面</string>
     <string name="menu_save_bookmark">儲存為書籤</string>
     <string name="menu_save_as">另存為…</string>
+    <string name="menu_save_markdown">儲存為 Markdown</string>
     <string name="menu_save_pdf">另存為 PDF</string>
     <string name="menu_shareClipboard">複製到剪貼簿</string>
 

@@ -235,4 +235,5 @@
     <string name="setting_title_custom_host_list">Additional domains</string>
     <string name="setting_summary_search_engine_brave">Brave</string>
     <string name="setting_title_proxy">Proxy</string>
+    <string name="setting_debug">Debug</string>
 </resources>
