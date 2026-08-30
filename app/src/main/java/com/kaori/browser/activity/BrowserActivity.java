@@ -8,8 +8,6 @@ import android.app.DownloadManager;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.ActivityNotFoundException;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -20,8 +18,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 
 import androidx.annotation.OptIn;
 import androidx.appcompat.app.AlertDialog;
@@ -87,16 +83,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
-import com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter;
-import org.json.JSONTokener;
 
 import com.kaori.browser.BuildConfig;
 import com.kaori.browser.GithubStar;
@@ -113,6 +103,11 @@ import com.kaori.browser.browser.Javascript;
 import com.kaori.browser.database.FaviconHelper;
 import com.kaori.browser.database.Record;
 import com.kaori.browser.database.RecordAction;
+import com.kaori.browser.export.MarkdownExporter;
+import com.kaori.browser.export.PdfExporter;
+import com.kaori.browser.permission.SitePermissionManager;
+import com.kaori.browser.session.BrowserSession;
+import com.kaori.browser.session.SessionManager;
 import com.kaori.browser.R;
 import com.kaori.browser.unit.BrowserUnit;
 import com.kaori.browser.unit.HelperUnit;
@@ -221,27 +216,7 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
 
     @Override
     public void onPause(){
-        //Save open Tabs in shared preferences
-        ArrayList<String> openTabs = new ArrayList<>();
-        ArrayList<String> openTabSettings = new ArrayList<>();
-        for (int i=0; i<BrowserContainer.size();i++){
-            String url = ((NinjaWebView) (BrowserContainer.get(i))).getUrl();
-            String settings = ((NinjaWebView) (BrowserContainer.get(i))).getSettingsBackup();
-            if (url != null) {
-                if (!url.equals(URL_ABOUT_BLANK)) {  //do not save empty tabs (about:blank)
-                    if (currentAlbumController == BrowserContainer.get(i)) {
-                        openTabs.add(0, url);
-                        openTabSettings.add(0, settings);
-                    } else {
-                        openTabs.add(url);
-                        openTabSettings.add(settings);
-                    }
-                }
-            }
-        }
-        sp = PreferenceManager.getDefaultSharedPreferences(context);
-        sp.edit().putString("openTabs", TextUtils.join("‚‗‚", openTabs)).apply();
-        sp.edit().putString("openTabSettings", TextUtils.join("‚‗‚", openTabSettings)).apply();
+        SessionManager.save(sp, currentAlbumController);
         isVisible = false;
         super.onPause();
     }
@@ -324,15 +299,14 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         initSearchPanel();
         initOverview();
 
-        //restore open Tabs from shared preferences if app got killed
-        ArrayList<String> openTabs;
-        ArrayList<String> openTabSettings;
-        openTabs = new ArrayList<String>(Arrays.asList(TextUtils.split(sp.getString("openTabs", ""), "‚‗‚")));
-        openTabSettings = new ArrayList<String>(Arrays.asList(TextUtils.split(sp.getString("openTabSettings", ""), "‚‗‚")));
-        if (openTabs.size()>0 && openTabSettings.size()>0) {
-            for (int counter = 0; counter < openTabs.size(); counter++) {
-                addAlbum(getString(R.string.app_name), openTabs.get(counter), BrowserContainer.size() < 1, openTabSettings.get(counter));
-            }
+        BrowserSession browserSession = SessionManager.restore(sp);
+        for (int counter = 0; counter < browserSession.size(); counter++) {
+            addAlbum(
+                    getString(R.string.app_name),
+                    browserSession.getUrl(counter),
+                    BrowserContainer.size() < 1,
+                    browserSession.getSettings(counter)
+            );
         }
         if (GithubStar.shouldShowStarDialog(this)) GithubStar.starDialog(this,"https://github.com/Hiyomi-Kuro/Browser");
     }
@@ -373,10 +347,7 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         ScriptUnit.initScripts(this);
 
-        //disable Microphone, Camera, and Location if permissions have been withdrawn
-        if (sp.getBoolean("sp_microphone", false) && !HelperUnit.checkPermissionsMic(this))  sp.edit().putBoolean("sp_microphone",false).apply();
-        if (sp.getBoolean("sp_camera", false) && !HelperUnit.checkPermissionsCam(this))  sp.edit().putBoolean("sp_camera",false).apply();
-        if (sp.getBoolean("sp_location", false) && !HelperUnit.checkPermissionsLoc(this))  sp.edit().putBoolean("sp_location",false).apply();
+        SitePermissionManager.syncRevokedPermissions(this, sp);
 
         if (sp.getInt("restart_changed", 1) == 1) {
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
@@ -419,7 +390,7 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
             }
         }
         if (sp.getInt("restart_changed", 1) == 0) {  //restart_changed !=0 in case of a restart after settings change
-            sp.edit().putString("openTabs", "").apply();   //clear open tabs in preferences
+            SessionManager.clearSavedTabs(sp);   //clear open tabs in preferences
         }
         BrowserContainer.clear();
 
@@ -535,6 +506,9 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
 
         if ("".equals(action)) {
             Log.i(TAG, "resumed FREE browser");
+        } else if (BuildConfig.DEBUG && "com.kaori.browser.action.EXPORT_MARKDOWN".equals(action)) {
+            MarkdownExporter.export(this, ninjaWebView);
+            hideOverview();
         } else if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_WEB_SEARCH)) {
             addAlbum(null, Objects.requireNonNull(intent.getStringExtra(SearchManager.QUERY)), true, null);
             hideOverview();
@@ -1114,11 +1088,7 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         Chip chip_location = dialogView.findViewById(R.id.chip_location);
         chip_location.setChecked(sp.getBoolean("sp_location",false));
         chip_location.setOnClickListener(v -> {
-            sp.edit().putBoolean("sp_location",chip_location.isChecked()).apply();
-            if (chip_location.isChecked()) {
-                HelperUnit.grantPermissionsLoc(this);
-                if (!HelperUnit.checkPermissionsLoc(this)) NinjaToast.show(activity,activity.getResources().getString(R.string.error_missing_permission)+"\n"+activity.getResources().getString(R.string.setting_title_location));
-            }
+            SitePermissionManager.setLocationEnabled(this, sp, chip_location.isChecked());
             dialog.cancel();
             reloadPage();
         });
@@ -1135,11 +1105,7 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         Chip chip_camera = dialogView.findViewById(R.id.chip_camera);
         chip_camera.setChecked(sp.getBoolean("sp_camera",false));
         chip_camera.setOnClickListener(v -> {
-            sp.edit().putBoolean("sp_camera",chip_camera.isChecked()).apply();
-            if (chip_camera.isChecked()) {
-                HelperUnit.grantPermissionsCam(this);
-                if (!HelperUnit.checkPermissionsCam(this)) NinjaToast.show(activity,activity.getResources().getString(R.string.error_missing_permission)+"\n"+activity.getResources().getString(R.string.error_allow_camera));
-            }
+            SitePermissionManager.setCameraEnabled(this, sp, chip_camera.isChecked());
             dialog.cancel();
             reloadPage();
         });
@@ -1147,11 +1113,7 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         Chip chip_microphone = dialogView.findViewById(R.id.chip_microphone);
         chip_microphone.setChecked(sp.getBoolean("sp_microphone",false));
         chip_microphone.setOnClickListener(v -> {
-            sp.edit().putBoolean("sp_microphone",chip_microphone.isChecked()).apply();
-            if (chip_microphone.isChecked()){
-                HelperUnit.grantPermissionsMic(this);
-                if (!HelperUnit.checkPermissionsMic(this)) NinjaToast.show(activity,activity.getResources().getString(R.string.error_missing_permission)+"\n"+activity.getResources().getString(R.string.error_allow_microphone));
-            }
+            SitePermissionManager.setMicrophoneEnabled(this, sp, chip_microphone.isChecked());
             dialog.cancel();
             reloadPage();
         });
@@ -1690,7 +1652,7 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
 
         ImageButton overflow_print = dialogView.findViewById(R.id.overflow_print);
         overflow_print.setOnClickListener(v -> {
-            HelperUnit.print(this, ninjaWebView);
+            PdfExporter.export(this, ninjaWebView);
             dialog_overflow.cancel();
         });
 
@@ -1776,7 +1738,7 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
             } else if (position == 3) {
                 HelperUnit.saveAs(dialog_overflow, activity, url, null);
             } else if (position == 4) {
-                com.kaori.browser.unit.MarkdownExporter.export(this, ninjaWebView);
+                MarkdownExporter.export(this, ninjaWebView);
             }
         });
 

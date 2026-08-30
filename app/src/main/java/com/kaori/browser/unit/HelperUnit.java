@@ -42,9 +42,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import android.os.Environment;
 import android.os.Handler;
-import android.print.PrintAttributes;
-import android.print.PrintDocumentAdapter;
-import android.print.PrintManager;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -62,6 +59,7 @@ import java.util.Objects;
 import com.kaori.browser.R;
 import com.kaori.browser.browser.DataURIParser;
 import com.kaori.browser.browser.FilenameExtractor;
+import com.kaori.browser.export.PdfExporter;
 import com.kaori.browser.view.GridItem;
 import com.kaori.browser.view.NinjaToast;
 import com.kaori.browser.view.NinjaWebView;
@@ -408,12 +406,7 @@ public class HelperUnit {
     }
 
     public static void print(Context context, NinjaWebView ninjaWebView) {
-        ((Activity) context).runOnUiThread(() -> {
-            String title = HelperUnit.guessFileName(ninjaWebView.getUrl(), null, null);
-            PrintManager printManager = (PrintManager) context.getSystemService(Context.PRINT_SERVICE);
-            PrintDocumentAdapter printAdapter = ninjaWebView.createPrintDocumentAdapter(title);
-            Objects.requireNonNull(printManager).print(title, printAdapter, new PrintAttributes.Builder().build());
-        });
+        PdfExporter.export(context, ninjaWebView);
     }
 
 }

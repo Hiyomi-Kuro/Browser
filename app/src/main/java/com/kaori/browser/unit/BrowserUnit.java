@@ -13,8 +13,8 @@ import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Environment;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.preference.PreferenceManager;
+import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -27,7 +27,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,6 +35,7 @@ import com.kaori.browser.browser.DataURIParser;
 import com.kaori.browser.database.RecordAction;
 import com.kaori.browser.R;
 import com.kaori.browser.browser.JavaScriptInterface;
+import com.kaori.browser.search.SearchEngineManager;
 import com.kaori.browser.view.NinjaToast;
 
 public class BrowserUnit {
@@ -44,18 +44,6 @@ public class BrowserUnit {
     public static final int LOADING_STOPPED = 101;  //Must be > PROGRESS_MAX !
     public static final String MIME_TYPE_TEXT_PLAIN = "text/plain";
 
-    private static final String SEARCH_ENGINE_GOOGLE = "https://www.google.com/search?q=";
-    private static final String SEARCH_ENGINE_DUCKDUCKGO = "https://duckduckgo.com/?q=";
-    private static final String SEARCH_ENGINE_STARTPAGE = "https://startpage.com/do/search?query=";
-    private static final String SEARCH_ENGINE_BING = "https://www.bing.com/search?q=";
-    private static final String SEARCH_ENGINE_BAIDU = "https://www.baidu.com/s?wd=";
-    private static final String SEARCH_ENGINE_QWANT = "https://www.qwant.com/?q=";
-    private static final String SEARCH_ENGINE_ECOSIA = "https://www.ecosia.org/search?q=";
-    private static final String SEARCH_ENGINE_Metager = "https://metager.org/meta/meta.ger3?eingabe=";
-
-    private static final String SEARCH_ENGINE_STARTPAGE_DE = "https://startpage.com/do/search?lui=deu&language=deutsch&query=";
-    private static final String SEARCH_ENGINE_SEARX = "https://searx.be/?q=";
-    private static final String SEARCH_ENGINE_BRAVE = "https://search.brave.com/search?q=";
 
     public static final String URL_ENCODING = "UTF-8";
     public static final String URL_ABOUT_BLANK = "about:blank";
@@ -65,88 +53,16 @@ public class BrowserUnit {
     public static final String URL_SCHEME_CONTENT = "content://";
     public static final String URL_SCHEME_HTTPS = "https://";
     public static final String URL_SCHEME_HTTP = "http://";
-    private static final String URL_SCHEME_FTP = "ftp://";
     public static final String URL_SCHEME_INTENT = "intent://";
     public static final String URL_SCHEME_VIEW_SOURCE = "view-source:";
     public static final String URL_SCHEME_BLOB = "blob:";
 
     public static boolean isURL(String url) {
-
-
-        url = url.toLowerCase(Locale.getDefault());
-
-        if (url.startsWith(URL_ABOUT_BLANK)
-                || url.startsWith(URL_SCHEME_MAIL_TO)
-                || url.startsWith(URL_SCHEME_FILE)
-                || url.startsWith(URL_SCHEME_CONTENT)
-                || url.startsWith(URL_SCHEME_HTTP)
-                || url.startsWith(URL_SCHEME_HTTPS)
-                || url.startsWith(URL_SCHEME_VIEW_SOURCE)
-                || url.startsWith(URL_SCHEME_FTP)
-                || url.startsWith(URL_SCHEME_INTENT)) {
-            return true;
-        }
-
-        String regex = "^((ftp|http|https|intent)?://)"                      // support scheme
-                + "?(([0-9a-z_!~*'().&=+$%-]+: )?[0-9a-z_!~*'().&=+$%-]+@)?" // ftp的user@
-                + "(([0-9]{1,3}\\.){3}[0-9]{1,3}"                            // IP形式的URL -> 199.194.52.184
-                + "|"                                                        // 允许IP和DOMAIN（域名）
-                + "([0-9a-z_!~*'()-]+\\.)*"                                  // 域名 -> www.
-                + "([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\\."                    // 二级域名
-                + "[a-z]{2,6})"                                              // first level domain -> .com or .museum
-                + "(:[0-9]{1,4})?"                                           // 端口 -> :80
-                + "((/?)|"                                                   // a slash isn't required if there is no file name
-                + "(/[0-9a-z_!~*'().;?:@&=+$,%#-]+)+/?)$";
-        Pattern pattern = Pattern.compile(regex);
-        return pattern.matcher(url).matches();
+        return SearchEngineManager.isUrl(url);
     }
 
     public static String queryWrapper(Context context, String query) {
-
-        if (isURL(query)) {
-            if (query.startsWith(URL_SCHEME_ABOUT) || query.startsWith(URL_SCHEME_MAIL_TO)) {
-                return query;
-            }
-
-            if (!query.contains("://")) {
-                query = URL_SCHEME_HTTPS + query;
-            }
-
-            return query;
-        }
-
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        String customSearchEngine = sp.getString("sp_search_engine_custom", "");
-
-        if (sp.getBoolean("searchEngineSwitch",false)){
-            return customSearchEngine + query;
-        } else {
-            final int i = Integer.parseInt(Objects.requireNonNull(sp.getString("sp_search_engine", "3")));
-            switch (i) {
-                case 1:
-                    return SEARCH_ENGINE_STARTPAGE_DE + query;
-                case 2:
-                    return SEARCH_ENGINE_BAIDU + query;
-                case 3:
-                    return SEARCH_ENGINE_BING + query;
-                case 4:
-                    return SEARCH_ENGINE_DUCKDUCKGO + query;
-                case 5:
-                    return SEARCH_ENGINE_GOOGLE + query;
-                case 6:
-                    return SEARCH_ENGINE_SEARX + query;
-                case 7:
-                    return SEARCH_ENGINE_QWANT + query;
-                case 8:
-                    return SEARCH_ENGINE_ECOSIA + query;
-                case 9:
-                    return SEARCH_ENGINE_Metager + query;
-                case 10:
-                    return SEARCH_ENGINE_BRAVE + query;
-                default:
-                    return SEARCH_ENGINE_STARTPAGE + query;
-            }
-        }
+        return SearchEngineManager.resolve(context, query);
     }
 
     public static void download(final Context context, final WebView webview, final String url, final String contentDisposition, final String mimeType) {
