@@ -32,6 +32,7 @@ import java.util.List;
 import com.kaori.browser.R;
 import com.kaori.browser.database.UserScript;
 import com.kaori.browser.database.UserScriptsHelper;
+import com.kaori.browser.userscript.BuiltInUserScripts;
 
 public class RecyclerOverviewListAdapter extends RecyclerView.Adapter<RecyclerOverviewListAdapter.ScriptViewHolder> {
 
@@ -56,15 +57,25 @@ public class RecyclerOverviewListAdapter extends RecyclerView.Adapter<RecyclerOv
 
     @Override
     public void onBindViewHolder(ScriptViewHolder holder, int position) {
-        holder.script.setText((userScripts.get(position).getType().equals(DOC_START)? "\u23ee: ":"\u23ed: ") + userScripts.get(position).getName());
+        UserScript boundScript = userScripts.get(position);
+        boolean builtIn = BuiltInUserScripts.isBuiltIn(boundScript);
+        String timing = boundScript.getType().equals(DOC_START) ? "\u23ee: " : "\u23ed: ";
+        holder.script.setText(timing + (builtIn ? "\u2605 " : "") + boundScript.getName());
         holder.script.setOnClickListener(v -> editText.setText(userScripts.get(holder.getBindingAdapterPosition()).getScript()));
-        holder.delete.setOnClickListener(v -> onItemDismiss(holder.getBindingAdapterPosition()));
+
+        holder.delete.setVisibility(builtIn ? View.INVISIBLE : View.VISIBLE);
+        holder.delete.setEnabled(!builtIn);
+        if (builtIn) {
+            holder.delete.setOnClickListener(null);
+        } else {
+            holder.delete.setOnClickListener(v -> onItemDismiss(holder.getBindingAdapterPosition()));
+        }
+
         holder.active.setVisibility(View.VISIBLE);
-        holder.active.setChecked(userScripts.get(holder.getBindingAdapterPosition()).isActive());
+        holder.active.setChecked(boundScript.isActive());
         holder.active.setOnClickListener(v -> {
             UserScript script = userScripts.get(holder.getBindingAdapterPosition());
             script.setActive(holder.active.isChecked());
-            userScripts.get(holder.getBindingAdapterPosition()).setActive(holder.active.isChecked());
             database.updateScript(script);
             notifyItemChanged(holder.getBindingAdapterPosition());
         });

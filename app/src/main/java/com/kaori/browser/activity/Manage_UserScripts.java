@@ -40,6 +40,7 @@ import com.kaori.browser.R;
 import com.kaori.browser.Utils;
 import com.kaori.browser.database.UserScript;
 import com.kaori.browser.database.UserScriptsHelper;
+import com.kaori.browser.userscript.BuiltInUserScripts;
 import com.kaori.browser.unit.HelperUnit;
 import com.kaori.browser.view.NinjaToast;
 import com.kaori.browser.view.RecyclerOverviewListAdapter;
@@ -65,6 +66,7 @@ public class Manage_UserScripts extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         UserScriptsHelper userScriptsHelper = new UserScriptsHelper(this);
+        BuiltInUserScripts.ensureInstalled(this, userScriptsHelper);
         userScripts = userScriptsHelper.getAllScripts();
 
         editText = findViewById(R.id.edit_script);
@@ -140,8 +142,14 @@ public class Manage_UserScripts extends AppCompatActivity {
             builder.setMessage(R.string.hint_database);
             builder.setPositiveButton(R.string.app_ok, (dialog, whichButton) -> {
                 UserScriptsHelper userScriptsHelper = new UserScriptsHelper(this);
-                userScriptsHelper.deleteAllScripts();
-                userScripts.clear();
+                for (int i = userScripts.size() - 1; i >= 0; i--) {
+                    UserScript script = userScripts.get(i);
+                    if (BuiltInUserScripts.isBuiltIn(script)) {
+                        continue;
+                    }
+                    userScriptsHelper.deleteScript(script.getId());
+                    userScripts.remove(i);
+                }
                 adapter.notifyDataSetChanged();
             });
             builder.setNegativeButton(R.string.app_cancel, (dialog, whichButton) -> dialog.cancel());

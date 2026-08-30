@@ -93,7 +93,7 @@ public class NinjaWebViewClient extends WebViewClient {
         List<UserScript> list = ScriptUnit.findScriptsToExecute(context, url, DOC_END);
         for (UserScript script : list){
             if (sp.getBoolean("sp_debug",false)) NinjaToast.show(context, script.getName());
-            view.evaluateJavascript(script.getScript(),null);
+            ScriptUnit.executeScript(view, url, script);
         }
 
         view.evaluateJavascript("var vlinks=document.getElementsByTagName('video'); for(let i=0;i<vlinks.length;i++){vlinks[i].pause()};", null);
@@ -116,7 +116,7 @@ public class NinjaWebViewClient extends WebViewClient {
         List<UserScript> list = ScriptUnit.findScriptsToExecute(context, url, DOC_START);
         for (UserScript script : list){
             if (sp.getBoolean("sp_debug",false)) NinjaToast.show(context, script.getName());
-            view.evaluateJavascript(script.getScript(),null);
+            ScriptUnit.executeScript(view, url, script);
         }
 
         if (sp.getBoolean("sp_deny_cookie_banners",false)){  //inject cookies if possible

@@ -222,7 +222,7 @@
     <string name="hint_DRM_Media">允許播放 DRM 保護的媒體？</string>
     <string name="setting_userScript" translatable="false">Greasemonkey Scripts</string>
 
-    <string name="summary_userscript" translatable="false">\@match \u2714 \@name \u2714 \@run-at \u2714 \n\@required \u2716 \@include \u2716 \@exclude \u2716 \n\@grant \u2716</string>
+    <string name="summary_userscript" translatable="false">\@match \u2714 \@include \u2714 \@exclude \u2714 \n\@require \u2714 \@grant \u2714 (common GM APIs)</string>
     <string name="error_allow_microphone">允許使用麥克風</string>
     <string name="error_missing_permission">所需的授權：</string>
     <string name="dialog_StarOnGitHub">您是否喜歡此應用程式？請在 GitHub 給星，或通過 PayPal 給開發者買杯咖啡。</string>

@@ -31,6 +31,7 @@ import com.kaori.browser.database.FaviconHelper;
 import com.kaori.browser.database.Record;
 import com.kaori.browser.database.RecordAction;
 import com.kaori.browser.unit.BrowserUnit;
+import com.kaori.browser.userscript.UserScriptGrantBridge;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -105,12 +106,17 @@ public class NinjaWebView extends WebView implements AlbumController {
     private Cookie cookieHosts;
     private Bitmap favicon;
     private SharedPreferences sp;
+    private UserScriptGrantBridge userScriptGrantBridge;
 
     private boolean foreground;
     public boolean isForeground() {
         return foreground;
     }
     private BrowserController browserController = null;
+    public UserScriptGrantBridge getUserScriptGrantBridge() {
+        return userScriptGrantBridge;
+    }
+
     public BrowserController getBrowserController() {
         return browserController;
     }
@@ -142,6 +148,7 @@ public class NinjaWebView extends WebView implements AlbumController {
         this.javaHosts = new Javascript(this.context);
         this.DOMHosts = new DOM(this.context);
         this.cookieHosts = new Cookie(this.context);
+        this.userScriptGrantBridge = new UserScriptGrantBridge(this.context, this);
         this.album = new AlbumItem(this.context, this, this.browserController);
         this.webViewClient = new NinjaWebViewClient(this);
         this.webChromeClient = new NinjaWebChromeClient(this);
@@ -171,6 +178,7 @@ public class NinjaWebView extends WebView implements AlbumController {
         }
 
         addJavascriptInterface(new JavaScriptInterface(context, this), "NinjaWebViewJS");
+        addJavascriptInterface(userScriptGrantBridge, "UserScriptBridge");
         String userAgent = getUserAgent(desktopMode);
         webSettings.setSafeBrowsingEnabled(true);
 

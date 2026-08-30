@@ -26,6 +26,10 @@ public class UserScript {
     private int rank;
     private boolean active;
     private final List<String> matchPatterns = new ArrayList<>();
+    private final List<String> includePatterns = new ArrayList<>();
+    private final List<String> excludePatterns = new ArrayList<>();
+    private final List<String> requireUrls = new ArrayList<>();
+    private final List<String> grants = new ArrayList<>();
     public static String META_BEGIN = "// ==UserScript==";
     public static String META_END = "// ==/UserScript==";
     public static String DOC_START = "document-start";
@@ -43,6 +47,22 @@ public class UserScript {
     }
 
     public List<String> getMatchPatterns() {return matchPatterns;}
+
+    public List<String> getIncludePatterns() {return includePatterns;}
+
+    public List<String> getExcludePatterns() {return excludePatterns;}
+
+    public List<String> getRequireUrls() {return requireUrls;}
+
+    public List<String> getGrants() {return grants;}
+
+    public void clearParsedMetadata() {
+        matchPatterns.clear();
+        includePatterns.clear();
+        excludePatterns.clear();
+        requireUrls.clear();
+        grants.clear();
+    }
 
     public String getScript() {
         return script;
@@ -102,7 +122,7 @@ public class UserScript {
         String namespace ="@namespace";
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            if (line.contains("@namepace")) {
+            if (line.contains("@namespace")) {
                 namespace = line.split("@namespace")[1].trim();
                 break;
             }

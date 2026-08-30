@@ -240,7 +240,7 @@
     <string name="hint_DRM_Media">Allow DRM protected media playback?</string>
     <string name="setting_userScript" translatable="false">Greasemonkey Scripts</string>
 
-    <string name="summary_userscript" translatable="false">\@match \u2714 \@name \u2714 \@run-at \u2714 \n\@required \u2716 \@include \u2716 \@exclude \u2716 \n\@grant \u2716</string>
+    <string name="summary_userscript" translatable="false">\@match \u2714 \@include \u2714 \@exclude \u2714 \n\@require \u2714 \@grant \u2714 (common GM APIs)</string>
     <string name="error_allow_microphone">Allow microphone usage</string>
     <string name="error_missing_permission">Permission required:</string>
     <string name="dialog_StarOnGitHub">Do you like this app? Please give a star on GitHub or buy the developer a coffee via PayPal.</string>
