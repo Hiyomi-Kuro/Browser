@@ -11,6 +11,23 @@
     <string name="list_empty">List is empty</string>
     <string name="album_title_bookmarks">Bookmarks</string>
     <string name="album_title_tab">Opened Tabs</string>
+    <string name="session_button">Sessions</string>
+    <string name="session_title">Saved Sessions</string>
+    <string name="session_save_current">Save current Session</string>
+    <string name="session_name_hint">Session name</string>
+    <string name="session_empty">No saved Sessions</string>
+    <string name="session_list_item">%1$s · %2$d tabs</string>
+    <string name="session_restore">Restore</string>
+    <string name="session_delete">Delete Session</string>
+    <string name="session_restore_confirm">Restore “%1$s” and replace the current tabs?</string>
+    <string name="session_delete_confirm">Delete saved Session “%1$s”?</string>
+    <string name="session_saved">Saved Session “%1$s”</string>
+    <string name="session_restored">Restored Session “%1$s”</string>
+    <string name="session_no_tabs">No tabs to save</string>
+    <string name="session_name_required">Enter a Session name</string>
+    <string name="session_exporting">Exporting Session…</string>
+    <string name="session_export_done">Session exported to %1$s</string>
+    <string name="session_export_failed">Session export failed: %1$s</string>
     <string name="search_hint">Search</string>
 
     <string name="color_red">Red</string>
@@ -49,6 +66,7 @@
     <string name="menu_save_bookmark">Save as bookmark</string>
     <string name="menu_save_as">Save as …</string>
     <string name="menu_save_markdown">Save as Markdown</string>
+    <string name="menu_export_session">Export Session</string>
     <string name="menu_save_pdf">Save as PDF</string>
     <string name="menu_shareClipboard">Copy to clipboard</string>
 

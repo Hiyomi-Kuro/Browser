@@ -81,8 +81,10 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -108,6 +110,7 @@ import com.kaori.browser.export.PdfExporter;
 import com.kaori.browser.permission.SitePermissionManager;
 import com.kaori.browser.session.BrowserSession;
 import com.kaori.browser.session.SessionManager;
+import com.kaori.browser.session.SessionExporter;
 import com.kaori.browser.R;
 import com.kaori.browser.unit.BrowserUnit;
 import com.kaori.browser.unit.HelperUnit;
@@ -539,6 +542,10 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         View dialogView = View.inflate(context, R.layout.dialog_tabs, null);
 
         tab_container = dialogView.findViewById(R.id.tab_container);
+        dialogView.findViewById(R.id.session_button).setOnClickListener(v -> {
+            dialog_tabPreview.hide();
+            showSessionDialog();
+        });
 
         builder.setView(dialogView);
         dialog_tabPreview = builder.create();
@@ -553,6 +560,174 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
             else BrowserContainer.get(i).deactivate();
         }
 
+    }
+
+    private void showSessionDialog() {
+        List<BrowserSession> sessions = SessionManager.listNamed(sp);
+        ArrayList<String> items = new ArrayList<>();
+        items.add(getString(R.string.session_save_current));
+        for (BrowserSession session : sessions) {
+            items.add(getString(
+                    R.string.session_list_item,
+                    session.getName(),
+                    session.size()
+            ));
+        }
+
+        new MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.session_title)
+                .setItems(items.toArray(new String[0]), (dialog, which) -> {
+                    if (which == 0) {
+                        showSaveSessionDialog();
+                    } else {
+                        showSessionActions(sessions.get(which - 1));
+                    }
+                })
+                .setNegativeButton(R.string.app_cancel, null)
+                .show();
+    }
+
+    private void showSaveSessionDialog() {
+        if (BrowserContainer.size() == 0) {
+            Toast.makeText(this, R.string.session_no_tabs, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        EditText input = new EditText(context);
+        input.setHint(R.string.session_name_hint);
+        String lastName = SessionManager.getLastNamedSessionName(sp);
+        if (!TextUtils.isEmpty(lastName)) {
+            input.setText(lastName);
+            input.setSelection(lastName.length());
+        }
+
+        new MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.session_save_current)
+                .setView(input)
+                .setPositiveButton(R.string.app_ok, (dialog, which) -> {
+                    String name = input.getText().toString().trim();
+                    if (TextUtils.isEmpty(name)) {
+                        Toast.makeText(this, R.string.session_name_required, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    BrowserSession session = SessionManager.capture(name, currentAlbumController);
+                    if (session.isEmpty()) {
+                        Toast.makeText(this, R.string.session_no_tabs, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    SessionManager.saveNamed(sp, session);
+                    Toast.makeText(
+                            this,
+                            getString(R.string.session_saved, session.getName()),
+                            Toast.LENGTH_SHORT
+                    ).show();
+                })
+                .setNegativeButton(R.string.app_cancel, null)
+                .show();
+    }
+
+    private void showSessionActions(BrowserSession session) {
+        String[] actions = {
+                getString(R.string.session_restore),
+                getString(R.string.session_delete)
+        };
+
+        new MaterialAlertDialogBuilder(context)
+                .setTitle(session.getName())
+                .setItems(actions, (dialog, which) -> {
+                    if (which == 0) {
+                        confirmRestoreSession(session);
+                    } else if (which == 1) {
+                        confirmDeleteSession(session);
+                    }
+                })
+                .setNegativeButton(R.string.app_cancel, null)
+                .show();
+    }
+
+    private void confirmRestoreSession(BrowserSession session) {
+        new MaterialAlertDialogBuilder(context)
+                .setMessage(getString(R.string.session_restore_confirm, session.getName()))
+                .setPositiveButton(R.string.session_restore, (dialog, which) -> restoreSession(session))
+                .setNegativeButton(R.string.app_cancel, null)
+                .show();
+    }
+
+    private void restoreSession(BrowserSession session) {
+        hideTabView();
+        contentFrame.removeAllViews();
+        BrowserContainer.clear();
+        currentAlbumController = null;
+        ninjaWebView = null;
+        initTabDialog();
+
+        for (int i = 0; i < session.size(); i++) {
+            addAlbum(
+                    session.getTitle(i),
+                    session.getUrl(i),
+                    true,
+                    session.getSettings(i)
+            );
+        }
+
+        int activeIndex = session.getActiveIndex();
+        if (activeIndex >= 0 && activeIndex < BrowserContainer.size()) {
+            showAlbum(BrowserContainer.get(activeIndex));
+        }
+        initTabDialog();
+        Toast.makeText(
+                this,
+                getString(R.string.session_restored, session.getName()),
+                Toast.LENGTH_SHORT
+        ).show();
+    }
+
+    private void confirmDeleteSession(BrowserSession session) {
+        new MaterialAlertDialogBuilder(context)
+                .setMessage(getString(R.string.session_delete_confirm, session.getName()))
+                .setPositiveButton(R.string.session_delete, (dialog, which) -> {
+                    SessionManager.deleteNamed(sp, session.getName());
+                    Toast.makeText(this, R.string.app_done, Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton(R.string.app_cancel, null)
+                .show();
+    }
+
+    private void showExportSessionDialog() {
+        if (BrowserContainer.size() == 0) {
+            Toast.makeText(this, R.string.session_no_tabs, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        EditText input = new EditText(context);
+        input.setHint(R.string.session_name_hint);
+        String lastName = SessionManager.getLastNamedSessionName(sp);
+        if (!TextUtils.isEmpty(lastName)) {
+            input.setText(lastName);
+            input.setSelection(lastName.length());
+        }
+
+        new MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.menu_export_session)
+                .setView(input)
+                .setPositiveButton(R.string.app_ok, (dialog, which) -> {
+                    String name = input.getText().toString().trim();
+                    if (TextUtils.isEmpty(name)) {
+                        Toast.makeText(this, R.string.session_name_required, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    BrowserSession session = SessionManager.capture(name, currentAlbumController);
+                    ArrayList<NinjaWebView> webViews = new ArrayList<>();
+                    for (int i = 0; i < BrowserContainer.size(); i++) {
+                        NinjaWebView webView = (NinjaWebView) BrowserContainer.get(i);
+                        if (webView.getUrl() != null) {
+                            webViews.add(webView);
+                        }
+                    }
+                    SessionExporter.export(this, session, webViews);
+                })
+                .setNegativeButton(R.string.app_cancel, null)
+                .show();
     }
 
     @SuppressLint({"ClickableViewAccessibility", "UnsafeExperimentalUsageError"})
@@ -1711,6 +1886,7 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         GridItem item_25 = new GridItem(0, getString(R.string.menu_sc),  0);
         GridItem item_26 = new GridItem(0, getString(R.string.menu_save_as),  0);
         GridItem item_27 = new GridItem(0, getString(R.string.menu_save_markdown),  0);
+        GridItem item_28 = new GridItem(0, getString(R.string.menu_export_session),  0);
 
         final List<GridItem> gridList_save = new LinkedList<>();
         gridList_save.add(gridList_save.size(), item_21);
@@ -1718,6 +1894,7 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         gridList_save.add(gridList_save.size(), item_25);
         gridList_save.add(gridList_save.size(), item_26);
         gridList_save.add(gridList_save.size(), item_27);
+        gridList_save.add(gridList_save.size(), item_28);
 
         GridAdapter gridAdapter_save = new GridAdapter(context, gridList_save);
         menu_grid_save.setAdapter(gridAdapter_save);
@@ -1739,6 +1916,8 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
                 HelperUnit.saveAs(dialog_overflow, activity, url, null);
             } else if (position == 4) {
                 MarkdownExporter.export(this, ninjaWebView);
+            } else if (position == 5) {
+                showExportSessionDialog();
             }
         });
 

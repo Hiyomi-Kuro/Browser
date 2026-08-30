@@ -11,43 +11,19 @@ public final class ArticleExtractor {
         void onError();
     }
 
+    // Export the complete live DOM. Do not remove navigation, headers, footers,
+    // sidebars, forms, scripts, styles, or other page sections here. The HTML-to-
+    // Markdown converter decides how each HTML element is represented.
     private static final String EXTRACT_SCRIPT =
             "(function(){" +
-            "var selectors=[" +
-            "'article'," +
-            "'main'," +
-            "'[role=\"main\"]'," +
-            "'#main-content'," +
-            "'#maincontent'," +
-            "'.main-content'," +
-            "'.article-page'," +
-            "'.article-body'," +
-            "'.article-content'," +
-            "'.full-text'," +
-            "'.fulltext'" +
-            "];" +
-            "var root=null;" +
-            "var bestLength=0;" +
-            "selectors.forEach(function(sel){" +
-            "try{" +
-            "document.querySelectorAll(sel).forEach(function(el){" +
-            "var len=(el.innerText||'').trim().length;" +
-            "if(len>bestLength){bestLength=len;root=el;}" +
-            "});" +
-            "}catch(e){}" +
-            "});" +
-            "if(!root||bestLength<300){root=document.body;}" +
+            "var root=document.documentElement||document.body;" +
+            "if(!root){return ''; }" +
             "var clone=root.cloneNode(true);" +
-            "clone.querySelectorAll(" +
-            "'script,style,noscript,nav,header,footer,aside,form,button,input,select,textarea,svg,canvas,iframe," +
-            "[role=\"navigation\"],[aria-hidden=\"true\"]," +
-            ".advertisement,.advertisements,.ad,.ads,.sidebar,.social-share,.share-buttons,.cookie-banner'" +
-            ").forEach(function(n){n.remove();});" +
             "clone.querySelectorAll('a[href]').forEach(function(a){" +
             "try{a.setAttribute('href',new URL(a.getAttribute('href'),location.href).href);}catch(e){}" +
             "});" +
-            "clone.querySelectorAll('img[src]').forEach(function(img){" +
-            "try{img.setAttribute('src',new URL(img.getAttribute('src'),location.href).href);}catch(e){}" +
+            "clone.querySelectorAll('[src]').forEach(function(el){" +
+            "try{el.setAttribute('src',new URL(el.getAttribute('src'),location.href).href);}catch(e){}" +
             "});" +
             "return clone.outerHTML;" +
             "})()";

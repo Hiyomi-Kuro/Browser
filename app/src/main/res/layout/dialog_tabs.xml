@@ -17,6 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentStart="true"
+            android:layout_toStartOf="@id/session_button"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="8dp"
             android:ellipsize="end"
@@ -26,6 +27,16 @@
             android:gravity="center_vertical"
             android:textAppearance="?attr/textAppearanceBody1"
             android:textStyle="bold"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/session_button"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="8dp"
+            android:minWidth="0dp"
+            android:text="@string/session_button" />
 
     </RelativeLayout>
 
