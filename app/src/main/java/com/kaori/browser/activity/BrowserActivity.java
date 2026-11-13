@@ -929,6 +929,12 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
             case "14":
                 saveBookmark();
                 break;
+            case "15":
+                if (aiPanel != null) aiPanel.show();
+                break;
+            case "16":
+                MarkdownExporter.export(this, ninjaWebView);
+                break;
         }
     }
 

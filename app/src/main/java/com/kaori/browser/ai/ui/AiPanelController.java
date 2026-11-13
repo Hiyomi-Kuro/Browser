@@ -238,6 +238,10 @@ public final class AiPanelController implements AgentController.Listener,
         manager.setStackFromEnd(true);
         messageList.setLayoutManager(manager);
         messageList.setAdapter(adapter);
+        // Streaming rebinds the same row for every delta. The default change animation
+        // crossfades the old and new holders in place, which makes the growing answer
+        // look duplicated for a moment; chat rows do not need that animation.
+        messageList.setItemAnimator(null);
 
         input = view.findViewById(R.id.ai_input);
         sendButton = view.findViewById(R.id.ai_send);
