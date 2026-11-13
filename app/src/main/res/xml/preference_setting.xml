@@ -14,6 +14,10 @@
             android:title="@string/setting_title_ui"/>
 
         <Preference
+            android:key="settings_ai"
+            android:title="@string/ai_settings_title" />
+
+        <Preference
             android:key="settings_filter"
             android:title="@string/setting_filter"/>
 

@@ -171,4 +171,27 @@
         <item>https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn-social/hosts</item>
     </string-array>
 
+    <!-- AI -->
+    <string-array name="ai_entries_provider">
+        <item>@string/ai_provider_opencode</item>
+        <item>@string/ai_provider_custom</item>
+    </string-array>
+
+    <string-array name="ai_values_provider">
+        <item>opencode_go</item>
+        <item>custom</item>
+    </string-array>
+
+    <string-array name="ai_entries_permission">
+        <item>@string/ai_permission_safe</item>
+        <item>@string/ai_permission_ask_all</item>
+        <item>@string/ai_permission_auto</item>
+    </string-array>
+
+    <string-array name="ai_values_permission">
+        <item>safe</item>
+        <item>ask_all</item>
+        <item>auto</item>
+    </string-array>
+
 </resources>

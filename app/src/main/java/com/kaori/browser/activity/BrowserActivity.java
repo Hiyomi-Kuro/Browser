@@ -27,6 +27,7 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.preference.PreferenceManager;
 
+import android.os.Looper;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -87,6 +88,16 @@ import android.widget.VideoView;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import com.kaori.browser.ai.agent.BrowserHost;
+import com.kaori.browser.ai.agent.TabInfo;
+import com.kaori.browser.ai.ui.AiPanelController;
 import java.util.Objects;
 
 
@@ -108,6 +119,7 @@ import com.kaori.browser.database.RecordAction;
 import com.kaori.browser.export.MarkdownExporter;
 import com.kaori.browser.export.PdfExporter;
 import com.kaori.browser.permission.SitePermissionManager;
+import com.kaori.browser.reader.ReaderModeManager;
 import com.kaori.browser.session.BrowserSession;
 import com.kaori.browser.session.SessionManager;
 import com.kaori.browser.session.SessionExporter;
@@ -134,7 +146,7 @@ import static android.webkit.WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE;
 import static com.kaori.browser.unit.BrowserUnit.URL_ABOUT_BLANK;
 
 
-public class BrowserActivity extends AppCompatActivity implements BrowserController {
+public class BrowserActivity extends AppCompatActivity implements BrowserController, BrowserHost {
 
     public static boolean isVisible = false;
     // Menus
@@ -177,6 +189,7 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
     private Javascript javaHosts;
     private Cookie cookieHosts;
     private DOM DOM;
+    private ReaderModeManager readerModeManager;
     private ObjectAnimator animation;
     private int iconColor;
     private boolean filter;
@@ -186,6 +199,11 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
 
     private ValueCallback<Uri[]> filePathCallback = null;
     private AlbumController currentAlbumController = null;
+
+    // Agent-created tabs may be closed by the agent without confirmation.
+    private final Set<AlbumController> agentTabs =
+            Collections.newSetFromMap(new IdentityHashMap<AlbumController, Boolean>());
+    private AiPanelController aiPanel;
 
     private static final int INPUT_FILE_REQUEST_CODE = 1;
     private ValueCallback<Uri[]> mFilePathCallback;
@@ -246,11 +264,13 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         context = BrowserActivity.this;
         activity = BrowserActivity.this;
+        readerModeManager = new ReaderModeManager(this);
         HelperUnit.initTheme(context);
 
         setContentView(R.layout.activity_main);
         Utils.setStatusBarAppearance(this);
         sp = PreferenceManager.getDefaultSharedPreferences(context);
+        aiPanel = new AiPanelController(this, this);
 
         if (Objects.requireNonNull(sp.getString("saved_key_ok", "no")).equals("no")) {
             PreferenceManager.setDefaultValues(context, R.xml.preference_setting, true);
@@ -397,6 +417,10 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         }
         BrowserContainer.clear();
 
+        if (aiPanel != null) {
+            aiPanel.destroy();
+            aiPanel = null;
+        }
         unregisterReceiver(downloadReceiver);
         ninjaWebView.getViewTreeObserver().removeOnGlobalLayoutListener(keyboardLayoutListener);
         super.onDestroy();
@@ -1845,6 +1869,18 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
             dialog_overflow.cancel();
         });
 
+        ImageButton overflow_ai = dialogView.findViewById(R.id.overflow_ai);
+        overflow_ai.setOnClickListener(v -> {
+            dialog_overflow.cancel();
+            if (aiPanel != null) aiPanel.show();
+        });
+
+        ImageButton overflow_markdown = dialogView.findViewById(R.id.overflow_markdown);
+        overflow_markdown.setOnClickListener(v -> {
+            MarkdownExporter.export(this, ninjaWebView);
+            dialog_overflow.cancel();
+        });
+
         final GridView menu_grid_tab = dialogView.findViewById(R.id.overflow_tab);
         final GridView menu_grid_save = dialogView.findViewById(R.id.overflow_save);
         final GridView menu_grid_other = dialogView.findViewById(R.id.overflow_other);
@@ -1885,7 +1921,6 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         GridItem item_23 = new GridItem(0, getString(R.string.menu_save_bookmark),  0);
         GridItem item_25 = new GridItem(0, getString(R.string.menu_sc),  0);
         GridItem item_26 = new GridItem(0, getString(R.string.menu_save_as),  0);
-        GridItem item_27 = new GridItem(0, getString(R.string.menu_save_markdown),  0);
         GridItem item_28 = new GridItem(0, getString(R.string.menu_export_session),  0);
 
         final List<GridItem> gridList_save = new LinkedList<>();
@@ -1893,7 +1928,6 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         gridList_save.add(gridList_save.size(), item_23);
         gridList_save.add(gridList_save.size(), item_25);
         gridList_save.add(gridList_save.size(), item_26);
-        gridList_save.add(gridList_save.size(), item_27);
         gridList_save.add(gridList_save.size(), item_28);
 
         GridAdapter gridAdapter_save = new GridAdapter(context, gridList_save);
@@ -1915,8 +1949,6 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
             } else if (position == 3) {
                 HelperUnit.saveAs(dialog_overflow, activity, url, null);
             } else if (position == 4) {
-                MarkdownExporter.export(this, ninjaWebView);
-            } else if (position == 5) {
                 showExportSessionDialog();
             }
         });
@@ -1924,9 +1956,11 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         // Other
         GridItem item_31 = new GridItem(0, getString(R.string.menu_other_searchSite),  0);
         GridItem item_32 = new GridItem(0, getString(R.string.menu_download),  0);
+        GridItem item_33 = new GridItem(0, getString(R.string.menu_reader_mode),  0);
 
         final List<GridItem> gridList_other = new LinkedList<>();
         gridList_other.add(gridList_other.size(), item_31);
+        gridList_other.add(gridList_other.size(), item_33);
         gridList_other.add(gridList_other.size(), item_32);
 
         GridAdapter gridAdapter_other = new GridAdapter(context, gridList_other);
@@ -1938,6 +1972,8 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
             if (position == 0) {
                 searchOnSite();
             } else if (position == 1) {
+                readerModeManager.toggle(ninjaWebView);
+            } else if (position == 2) {
                 startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
             }
         });
@@ -2201,6 +2237,326 @@ public class BrowserActivity extends AppCompatActivity implements BrowserControl
         if (ninjaWebView.canGoBack()) {
             ninjaWebView.setIsBackPressed(true);
             ninjaWebView.goBack();
+        }
+    }
+
+    // ---------------------------------------------------------------- BrowserHost
+    // Thin bridge used by the AI agent. Tab orchestration stays here; the agent itself
+    // lives in com.kaori.browser.ai.agent. Every method that touches a WebView is safe to
+    // call from the agent thread: it hops to the main thread when it is not already there.
+
+    @Override
+    public Activity activity() {
+        return this;
+    }
+
+    private static boolean onMainThread() {
+        return Looper.myLooper() == Looper.getMainLooper();
+    }
+
+    @Override
+    public WebView currentWebView() {
+        if (onMainThread()) {
+            return webViewOnMain();
+        }
+        final AtomicReference<WebView> holder = new AtomicReference<>(null);
+        postAndWait(() -> holder.set(webViewOnMain()), 3000);
+        return holder.get();
+    }
+
+    private WebView webViewOnMain() {
+        AlbumController controller = currentAlbumController;
+        return controller instanceof NinjaWebView ? (NinjaWebView) controller : null;
+    }
+
+    @Override
+    public String currentUrl() {
+        if (onMainThread()) {
+            return urlOnMain();
+        }
+        final AtomicReference<String> holder = new AtomicReference<>(null);
+        postAndWait(() -> holder.set(urlOnMain()), 3000);
+        return holder.get() == null ? "" : holder.get();
+    }
+
+    private String urlOnMain() {
+        WebView webView = webViewOnMain();
+        String url = webView == null ? null : webView.getUrl();
+        return url == null ? "" : url;
+    }
+
+    @Override
+    public String currentTitle() {
+        if (onMainThread()) {
+            return titleOnMain();
+        }
+        final AtomicReference<String> holder = new AtomicReference<>(null);
+        postAndWait(() -> holder.set(titleOnMain()), 3000);
+        return holder.get() == null ? "" : holder.get();
+    }
+
+    private String titleOnMain() {
+        WebView webView = webViewOnMain();
+        String title = webView == null ? null : webView.getTitle();
+        return title == null ? "" : title;
+    }
+
+    @Override
+    public boolean canGoBack() {
+        if (onMainThread()) {
+            WebView webView = webViewOnMain();
+            return webView != null && webView.canGoBack();
+        }
+        final boolean[] holder = new boolean[]{false};
+        postAndWait(() -> {
+            WebView webView = webViewOnMain();
+            holder[0] = webView != null && webView.canGoBack();
+        }, 3000);
+        return holder[0];
+    }
+
+    @Override
+    public boolean canGoForward() {
+        if (onMainThread()) {
+            WebView webView = webViewOnMain();
+            return webView != null && webView.canGoForward();
+        }
+        final boolean[] holder = new boolean[]{false};
+        postAndWait(() -> {
+            WebView webView = webViewOnMain();
+            holder[0] = webView != null && webView.canGoForward();
+        }, 3000);
+        return holder[0];
+    }
+
+    private void onMain(Runnable action) {
+        if (action == null) {
+            return;
+        }
+        if (onMainThread()) {
+            try {
+                action.run();
+            } catch (RuntimeException e) {
+                Log.w(TAG, "Browser action failed", e);
+            }
+        } else {
+            postAndWait(action, 5000);
+        }
+    }
+
+    @Override
+    public void openUrl(final String url, final boolean newTab) {
+        if (url == null || url.isEmpty()) {
+            return;
+        }
+        onMain(() -> {
+            if (newTab) {
+                addAlbum(getString(R.string.app_name), url, true, null);
+                if (ninjaWebView != null) {
+                    agentTabs.add(ninjaWebView);
+                }
+            } else if (ninjaWebView != null) {
+                ninjaWebView.loadUrl(url);
+            }
+        });
+    }
+
+    @Override
+    public void goBack() {
+        onMain(() -> {
+            if (ninjaWebView != null && ninjaWebView.canGoBack()) {
+                ninjaWebView.goBack();
+            }
+        });
+    }
+
+    @Override
+    public void goForward() {
+        onMain(() -> {
+            if (ninjaWebView != null && ninjaWebView.canGoForward()) {
+                ninjaWebView.goForward();
+            }
+        });
+    }
+
+    @Override
+    public void reload() {
+        onMain(() -> {
+            if (ninjaWebView != null) {
+                ninjaWebView.reload();
+            }
+        });
+    }
+
+    @Override
+    public void stopLoading() {
+        onMain(() -> {
+            if (ninjaWebView != null) {
+                ninjaWebView.stopLoading();
+            }
+        });
+    }
+
+    @Override
+    public int tabCount() {
+        if (onMainThread()) {
+            return BrowserContainer.size();
+        }
+        final int[] holder = new int[]{0};
+        postAndWait(() -> holder[0] = BrowserContainer.size(), 2000);
+        return holder[0];
+    }
+
+    @Override
+    public int currentTabIndex() {
+        if (onMainThread()) {
+            return BrowserContainer.indexOf(currentAlbumController);
+        }
+        final int[] holder = new int[]{-1};
+        postAndWait(() -> holder[0] = BrowserContainer.indexOf(currentAlbumController), 2000);
+        return holder[0];
+    }
+
+    @Override
+    public List<TabInfo> listTabs() {
+        if (!onMainThread()) {
+            final AtomicReference<List<TabInfo>> holder = new AtomicReference<>(null);
+            postAndWait(() -> holder.set(tabsOnMain()), 3000);
+            return holder.get() == null ? new ArrayList<TabInfo>() : holder.get();
+        }
+        return tabsOnMain();
+    }
+
+    private List<TabInfo> tabsOnMain() {
+        List<TabInfo> tabs = new ArrayList<>();
+        for (int i = 0; i < BrowserContainer.size(); i++) {
+            AlbumController controller = BrowserContainer.get(i);
+            if (!(controller instanceof NinjaWebView)) {
+                continue;
+            }
+            NinjaWebView webView = (NinjaWebView) controller;
+            String url = webView.getUrl();
+            String title = webView.getTitle();
+            tabs.add(new TabInfo(
+                    i,
+                    title == null ? "" : title,
+                    url == null ? "" : url,
+                    agentTabs.contains(controller),
+                    controller == currentAlbumController));
+        }
+        return tabs;
+    }
+
+    @Override
+    public boolean switchToTab(final int index) {
+        if (index < 0) {
+            return false;
+        }
+        final boolean[] switched = new boolean[]{false};
+        onMain(() -> {
+            if (index < BrowserContainer.size()) {
+                showAlbum(BrowserContainer.get(index));
+                switched[0] = true;
+            }
+        });
+        return switched[0];
+    }
+
+    @Override
+    public boolean isAgentTab(final int index) {
+        if (onMainThread()) {
+            return isAgentTabOnMain(index);
+        }
+        final boolean[] holder = new boolean[]{false};
+        postAndWait(() -> holder[0] = isAgentTabOnMain(index), 2000);
+        return holder[0];
+    }
+
+    private boolean isAgentTabOnMain(int index) {
+        if (index < 0 || index >= BrowserContainer.size()) {
+            return false;
+        }
+        return agentTabs.contains(BrowserContainer.get(index));
+    }
+
+    @Override
+    public boolean closeAgentTab(final int index) {
+        if (index < 0) {
+            return false;
+        }
+        final boolean[] closed = new boolean[]{false};
+        onMain(() -> {
+            if (index < BrowserContainer.size()) {
+                closed[0] = closeAgentTabInternal(BrowserContainer.get(index));
+            }
+        });
+        return closed[0];
+    }
+
+    /** Closes an agent-owned tab without the user confirmation used for user tabs. */
+    private boolean closeAgentTabInternal(AlbumController controller) {
+        if (controller == null || !agentTabs.contains(controller)) {
+            return false;
+        }
+        if (BrowserContainer.size() <= 1) {
+            return false;
+        }
+        AlbumController predecessor = controller == currentAlbumController
+                ? ((NinjaWebView) controller).getPredecessor()
+                : currentAlbumController;
+        int index = BrowserContainer.indexOf(controller);
+        tab_container.removeView(controller.getAlbumView());
+        BrowserContainer.remove(controller);
+        agentTabs.remove(controller);
+        if (predecessor != null && BrowserContainer.indexOf(predecessor) != -1) {
+            showAlbum(predecessor);
+        } else if (BrowserContainer.size() > 0) {
+            int next = Math.min(Math.max(index, 0), BrowserContainer.size() - 1);
+            showAlbum(BrowserContainer.get(next));
+        }
+        return true;
+    }
+
+    @Override
+    public void closeAllAgentTabs() {
+        if (agentTabs.isEmpty()) {
+            return;
+        }
+        List<AlbumController> owned = new ArrayList<>(agentTabs);
+        for (AlbumController controller : owned) {
+            closeAgentTabInternal(controller);
+        }
+    }
+
+    @Override
+    public boolean postAndWait(Runnable runnable, long timeoutMs) {
+        if (runnable == null) {
+            return false;
+        }
+        if (onMainThread()) {
+            try {
+                runnable.run();
+            } catch (RuntimeException e) {
+                Log.w(TAG, "Browser action failed", e);
+            }
+            return true;
+        }
+        final CountDownLatch latch = new CountDownLatch(1);
+        runOnUiThread(() -> {
+            try {
+                runnable.run();
+            } catch (RuntimeException e) {
+                // A failing UI action must never take the main thread down with it.
+                Log.w(TAG, "Browser action failed", e);
+            } finally {
+                latch.countDown();
+            }
+        });
+        try {
+            return latch.await(Math.max(200, timeoutMs), TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
         }
     }
 }

@@ -85,6 +85,11 @@
             android:parentActivityName=".activity.BrowserActivity"
             android:theme="@style/AppThemeDay"/>
 
+        <activity android:name="com.kaori.browser.activity.Settings_Ai"
+            android:label="@string/ai_settings_title"
+            android:parentActivityName=".activity.Settings_Activity"
+            android:theme="@style/AppThemeDay"/>
+
         <activity android:name="com.kaori.browser.activity.Whitelist_Javascript"
             android:label="@string/setting_title_whitelistJS"
             android:theme="@style/AppThemeDay"/>
@@ -119,6 +124,11 @@
 
         <activity android:name="com.kaori.browser.activity.Settings_Filter"
             android:label="@string/setting_filter"
+            android:theme="@style/AppThemeDay"/>
+
+        <activity android:name="com.kaori.browser.activity.Settings_AiTools"
+            android:label="@string/ai_tools_title"
+            android:parentActivityName=".activity.Settings_Ai"
             android:theme="@style/AppThemeDay"/>
 
     </application>

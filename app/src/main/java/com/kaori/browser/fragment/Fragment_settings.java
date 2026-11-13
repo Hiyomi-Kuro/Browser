@@ -14,6 +14,7 @@ import androidx.webkit.WebViewFeature;
 
 import com.kaori.browser.activity.Manage_UserScripts;
 import com.kaori.browser.activity.Settings_Delete;
+import com.kaori.browser.activity.Settings_Ai;
 import com.kaori.browser.activity.Settings_Backup;
 import com.kaori.browser.activity.Settings_Filter;
 import com.kaori.browser.activity.Settings_StartActivity;
@@ -28,6 +29,14 @@ public class Fragment_settings extends PreferenceFragmentCompat implements Share
         setPreferencesFromResource(R.xml.preference_setting, rootKey);
 
         initSummary(getPreferenceScreen());
+
+        Preference settings_ai = findPreference("settings_ai");
+        assert settings_ai != null;
+        settings_ai.setOnPreferenceClickListener(preference -> {
+            Intent intent = new Intent(getActivity(), Settings_Ai.class);
+            requireActivity().startActivity(intent);
+            return false;
+        });
 
         Preference settings_filter = findPreference("settings_filter");
         assert settings_filter != null;

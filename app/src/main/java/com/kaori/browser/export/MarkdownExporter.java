@@ -61,11 +61,7 @@ public final class MarkdownExporter {
         Uri uri = null;
 
         try {
-            String markdownBody = FlexmarkHtmlConverter
-                    .builder()
-                    .build()
-                    .convert(html)
-                    .trim();
+            String markdownBody = MarkdownConverter.toMarkdown(html);
 
             if (markdownBody.isEmpty()) {
                 throw new IllegalStateException("Markdown output is empty");

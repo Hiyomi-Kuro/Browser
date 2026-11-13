@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="@string/ai_cat_connection">
+
+        <SwitchPreference
+            android:key="ai_enabled"
+            android:defaultValue="false"
+            android:title="@string/ai_enable"
+            android:summary="@string/ai_enable_summary" />
+
+        <ListPreference
+            android:key="ai_provider"
+            android:defaultValue="opencode_go"
+            android:title="@string/ai_provider"
+            android:entries="@array/ai_entries_provider"
+            android:entryValues="@array/ai_values_provider" />
+
+        <EditTextPreference
+            android:key="ai_base_url"
+            android:defaultValue="https://opencode.ai/inference/go/openai/v1"
+            android:title="@string/ai_base_url"
+            android:inputType="textUri"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:key="ai_api_key_input"
+            android:title="@string/ai_api_key"
+            android:summary="@string/ai_api_key_hint"
+            android:inputType="textPassword"
+            android:dialogMessage="@string/ai_api_key_hint" />
+
+        <Preference
+            android:key="ai_api_key_remove"
+            android:title="@string/ai_api_key_remove" />
+
+        <Preference
+            android:key="ai_keystore_check"
+            android:title="@string/ai_keystore_check"
+            android:summary="@string/ai_keystore_check_summary" />
+
+        <EditTextPreference
+            android:defaultValue="deepseek-v4.1-flash"
+            android:key="ai_model"
+            android:title="@string/ai_model"
+            android:inputType="text"
+            app:useSimpleSummaryProvider="true" />
+
+        <Preference
+            android:key="ai_fetch_models"
+            android:title="@string/ai_fetch_models" />
+
+        <Preference
+            android:key="ai_test_connection"
+            android:title="@string/ai_test_connection" />
+
+        <Preference
+            android:key="ai_notice"
+            android:selectable="false"
+            android:title="@string/ai_provider"
+            android:summary="@string/ai_opencode_notice" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/ai_cat_generation">
+
+        <EditTextPreference
+            android:key="ai_timeout_seconds"
+            android:defaultValue="0"
+            android:title="@string/ai_timeout"
+            android:inputType="number"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+
+            android:key="ai_max_tokens"
+            android:defaultValue="8192"
+            android:title="@string/ai_max_tokens"
+            android:inputType="number"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:key="ai_temperature"
+            android:defaultValue="0.7"
+            android:title="@string/ai_temperature"
+            android:inputType="numberDecimal"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreference
+            android:key="ai_stream"
+            android:defaultValue="true"
+            android:title="@string/ai_stream" />
+
+        <SwitchPreference
+            android:key="ai_native_tools"
+            android:defaultValue="true"
+            android:title="@string/ai_native_tools" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/ai_cat_agent">
+
+        <EditTextPreference
+            android:key="ai_max_steps"
+            android:defaultValue="20"
+            android:title="@string/ai_max_steps"
+            android:inputType="number"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            android:key="ai_permission_mode"
+            android:defaultValue="safe"
+            android:title="@string/ai_permission"
+            android:entries="@array/ai_entries_permission"
+            android:entryValues="@array/ai_values_permission" />
+
+        <Preference
+            android:key="ai_chat_tools"
+            android:title="@string/ai_tools_title"
+            android:summary="@string/ai_tools_summary" />
+
+        <EditTextPreference
+            android:key="ai_report_language"
+            android:defaultValue="简体中文"
+            android:title="@string/ai_report_language"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/ai_cat_status">
+
+        <Preference
+            android:key="ai_stats_value"
+            android:title="@string/ai_stats"
+            android:selectable="false" />
+
+        <Preference
+            android:key="ai_reset_stats"
+            android:title="@string/ai_reset_stats" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
+

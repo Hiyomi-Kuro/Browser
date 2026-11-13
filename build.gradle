@@ -1,6 +1,26 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
+        // Aliyun mirrors with group filters: without them every artifact is first
+        // probed against the wrong mirror (2-5 s per miss on this link), which dominates
+        // resolution time. Measured: direct 47-56 KB/s, mirrors 98-141 KB/s.
+        maven {
+            url 'https://maven.aliyun.com/repository/google'
+            content {
+                includeGroupByRegex 'androidx\\..*'
+                includeGroupByRegex 'com\\.android\\..*'
+                includeGroupByRegex 'com\\.google\\.android\\..*'
+                includeGroupByRegex 'com\\.google\\.testing\\..*'
+            }
+        }
+        maven {
+            url 'https://maven.aliyun.com/repository/central'
+            content {
+                excludeGroupByRegex 'androidx\\..*'
+                excludeGroupByRegex 'com\\.android\\..*'
+                excludeGroupByRegex 'com\\.google\\.android\\..*'
+            }
+        }
         google()
         mavenCentral()
     }
@@ -12,8 +32,28 @@ buildscript {
 
 allprojects {
     repositories {
+        maven {
+            url 'https://maven.aliyun.com/repository/google'
+            content {
+                includeGroupByRegex 'androidx\\..*'
+                includeGroupByRegex 'com\\.android\\..*'
+                includeGroupByRegex 'com\\.google\\.android\\..*'
+                includeGroupByRegex 'com\\.google\\.testing\\..*'
+            }
+        }
+        maven {
+            url 'https://maven.aliyun.com/repository/central'
+            content {
+                excludeGroupByRegex 'androidx\\..*'
+                excludeGroupByRegex 'com\\.android\\..*'
+                excludeGroupByRegex 'com\\.google\\.android\\..*'
+            }
+        }
         mavenCentral()
         google()
-        maven { url 'https://jitpack.io' }
+        maven {
+            url 'https://jitpack.io'
+            content { includeGroup 'com.github.woheller69' }
+        }
     }
 }
